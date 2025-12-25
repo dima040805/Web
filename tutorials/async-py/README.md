@@ -106,7 +106,7 @@ cd lab8-async-fastapi
 ```bash
 python -m venv venv
 source venv/bin/activate
-pip install fastapi uvicorn aiohttp
+pip install fastapi uvicorn httpx
 ```
 
 ## Синхронный веб-сервер
@@ -253,7 +253,7 @@ async def calculate_bill_values_async(bills: List[Dict], rate: float) -> List[Di
 ### 3. Фоновые задачи: `app/core/background.py`
 
 ```python
-import aiohttp
+import httpx
 from typing import List, Dict
 from app.config import settings
 from app.services.exchange import calculate_bill_values_async
@@ -261,8 +261,8 @@ from app.services.exchange import calculate_bill_values_async
 async def send_exchange_result_async(request_id: str, exchange_rate: float, bills: List[Dict]):
     breakdown = await calculate_bill_values_async(bills, exchange_rate)
     
-    async with aiohttp.ClientSession() as session:
-        await session.put(
+    async with httpx.AsyncClient() as client:
+            await client.put(
             settings.exchange_result_url,
             json={
                 "token": settings.SECRET_TOKEN,
@@ -315,7 +315,7 @@ async def root():
 ```txt
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-aiohttp==3.9.1
+httpx==0.25.1
 ```
 
 ### Запуск асинхронного сервера
